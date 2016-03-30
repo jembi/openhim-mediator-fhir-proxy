@@ -1,0 +1,20 @@
+{
+  "resourceType": "Patient",
+  "id": "example",
+  "text": {
+    "status": "generated"
+  },
+  "identifier": [
+    {
+      "use": "usual"
+    }
+  ],
+  "name": [
+    {
+      "use": "official"
+    },
+    {
+      "use": "usual"
+    }
+  ]
+}

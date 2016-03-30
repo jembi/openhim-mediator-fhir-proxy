@@ -1,0 +1,59 @@
+{
+  "urn": "urn:mediator:fhir-proxy",
+  "version": "1.0.0",
+  "name": "OpenHIM Mediator FHIR Proxy",
+  "description": "Provides fhir-to-fhir adapter and validation services",
+  "endpoints": [
+    {
+      "name": "OpenHIM Mediator FHIR Proxy Route",
+      "host": "localhost",
+      "port": "8604",
+      "type": "http"
+    }
+  ],
+  "configDefs": [
+    {
+      "param": "upstream-scheme",
+      "displayName": "Upstream Server Scheme",
+      "type": "option",
+      "values": ["http", "https"]
+    },
+    {
+      "param": "upstream-host",
+      "displayName": "Upstream Server Host",
+      "type": "string"
+    },
+    {
+      "param": "upstream-port",
+      "displayName": "Upstream Server Port",
+      "type": "number"
+    },
+    {
+      "param": "upstream-format",
+      "displayName": "Upstream Format",
+      "description": "The format to use upstream, XML or JSON. If the 'Client' option is specified then the transaction will be forwarded unconverted in whichever format it was sent by the client or received by the upstream server.",
+      "type": "option",
+      "values": ["XML", "JSON", "Client"]
+    },
+    {
+      "param": "fhir-context",
+      "displayName": "FHIR Context",
+      "type": "option",
+      "values": ["DSTU1", "DSTU2"]
+    },
+    {
+      "param": "validation-enabled",
+      "displayName": "Enable Validation",
+      "description": "If enabled, fhir documents will be validated before being sent upstream",
+      "type": "bool"
+    }
+  ],
+  "config": {
+    "upstream-scheme": "http",
+    "upstream-host": "localhost",
+    "upstream-port": 80,
+    "upstream-format": "JSON",
+    "fhir-context": "DSTU2",
+    "validation-enabled": true
+  }
+}
