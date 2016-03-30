@@ -14,6 +14,8 @@ Validation and format conversions are handled with thanks to the [HAPI-FHIR](htt
 * Edit the properties file `mediator.properties` and change it as required for your implementantion
 * The mediator is packaged as a standalone jar and can be run as follows: `java -jar mediator-fhir-proxy-1.0.0-jar-with-dependencies.jar --conf mediator.properties`
 
+You can access the mediator config via the _Mediators_ page in the OpenHIM Console.
+
 # Compiling and running from source
 * `git clone https://github.com/jembi/openhim-mediator-fhir-proxy.git`
 * `cd openhim-mediator-fhir-proxy`
