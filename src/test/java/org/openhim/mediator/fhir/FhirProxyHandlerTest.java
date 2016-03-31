@@ -54,7 +54,7 @@ public class FhirProxyHandlerTest {
             testActors.add(new MockLauncher.ActorToLaunch("fhir-context", context));
             testActors.add(new MockLauncher.ActorToLaunch("http-connector", upstreamMock));
             TestingUtils.launchActors(system, testConfig.getName(), testActors);
-            expectNoMsg((FiniteDuration) dilated(Duration.create(200, TimeUnit.MILLISECONDS))); //delay a bit - the actors sometimes need a moment
+            expectNoMsg((FiniteDuration) dilated(Duration.create(500, TimeUnit.MILLISECONDS))); //delay a bit - the actors sometimes need a moment
 
             fhirProxyHandler = system.actorOf(Props.create(FhirProxyHandler.class, testConfig));
         }
