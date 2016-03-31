@@ -31,6 +31,7 @@ import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
 import org.xmlunit.diff.Diff;
 import scala.concurrent.duration.Duration;
+import scala.concurrent.duration.FiniteDuration;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ public class FhirProxyHandlerTest {
             testActors.add(new MockLauncher.ActorToLaunch("fhir-context", context));
             testActors.add(new MockLauncher.ActorToLaunch("http-connector", upstreamMock));
             TestingUtils.launchActors(system, testConfig.getName(), testActors);
-            expectNoMsg(Duration.create(50, TimeUnit.MILLISECONDS)); //delay a bit - the actors sometimes need a moment
+            expectNoMsg((FiniteDuration) dilated(Duration.create(50, TimeUnit.MILLISECONDS))); //delay a bit - the actors sometimes need a moment
 
             fhirProxyHandler = system.actorOf(Props.create(FhirProxyHandler.class, testConfig));
         }
