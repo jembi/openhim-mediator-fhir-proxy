@@ -3,3 +3,5 @@ language: java
 branches:
   only:
     - master
+
+script: mvn -Dconfig.resource=ci.conf clean install
