@@ -1,6 +1,6 @@
 {
   "urn": "urn:mediator:fhir-proxy",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "OpenHIM Mediator FHIR Proxy",
   "description": "Provides fhir-to-fhir adapter and validation services",
   "endpoints": [

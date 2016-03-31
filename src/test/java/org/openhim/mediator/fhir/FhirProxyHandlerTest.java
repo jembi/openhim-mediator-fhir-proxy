@@ -6,7 +6,11 @@
 
 package org.openhim.mediator.fhir;
 
-import akka.actor.*;
+import akka.actor.Actor;
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.Props;
+import akka.actor.UntypedActor;
 import akka.testkit.JavaTestKit;
 import ca.uhn.fhir.context.FhirContext;
 import org.apache.commons.io.IOUtils;
@@ -29,7 +33,11 @@ import org.xmlunit.diff.Diff;
 import scala.concurrent.duration.Duration;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
@@ -86,6 +94,22 @@ public class FhirProxyHandlerTest {
                     Collections.<String, String>emptyMap()
             );
         }
+
+        protected MediatorHTTPRequest GETPatientRequest_formatParam(String accept) {
+            return new MediatorHTTPRequest(
+                    getRef(),
+                    getRef(),
+                    "unit-test",
+                    "GET",
+                    "http",
+                    "localhost",
+                    8604,
+                    "/fhir/Patient/1",
+                    null,
+                    Collections.<String, String>emptyMap(),
+                    Collections.singletonMap("_format", accept)
+            );
+        }
     }
 
     private static class DSTU2FhirContext extends UntypedActor {
@@ -122,6 +146,10 @@ public class FhirProxyHandlerTest {
             assertEquals(testConfig.getDynamicConfig().get("upstream-port"), new Double(request.getPort()));
             assertEquals(Constants.FHIR_MIME_JSON, request.getHeaders().get("Content-Type"));
 
+            if (request.getParams()!=null && request.getParams().containsKey("_format")) {
+                fail("Mediator should not forward _format param");
+            }
+
             try {
                 JSONAssert.assertEquals(patientJSON, request.getBody(), JSONCompareMode.LENIENT);
             } catch (JSONException ex) {
@@ -152,6 +180,10 @@ public class FhirProxyHandlerTest {
             assertEquals(testConfig.getDynamicConfig().get("upstream-host"), request.getHost());
             assertEquals(testConfig.getDynamicConfig().get("upstream-port"), new Double(request.getPort()));
             assertEquals(Constants.FHIR_MIME_XML, request.getHeaders().get("Content-Type"));
+
+            if (request.getParams()!=null && request.getParams().containsKey("_format")) {
+                fail("Mediator should not forward _format param");
+            }
 
             Diff diff = DiffBuilder
                     .compare(Input.fromString(patientXML))
@@ -185,6 +217,10 @@ public class FhirProxyHandlerTest {
             assertEquals(testConfig.getDynamicConfig().get("upstream-host"), request.getHost());
             assertEquals(testConfig.getDynamicConfig().get("upstream-port"), new Double(request.getPort()));
             assertEquals(Constants.FHIR_MIME_JSON, request.getHeaders().get("Accept"));
+
+            if (request.getParams()!=null && request.getParams().containsKey("_format")) {
+                fail("Mediator should not forward _format param");
+            }
         }
     }
 
@@ -210,6 +246,10 @@ public class FhirProxyHandlerTest {
             assertEquals(testConfig.getDynamicConfig().get("upstream-host"), request.getHost());
             assertEquals(testConfig.getDynamicConfig().get("upstream-port"), new Double(request.getPort()));
             assertEquals(Constants.FHIR_MIME_XML, request.getHeaders().get("Accept"));
+
+            if (request.getParams()!=null && request.getParams().containsKey("_format")) {
+                fail("Mediator should not forward _format param");
+            }
         }
     }
 
@@ -628,6 +668,31 @@ public class FhirProxyHandlerTest {
     }
 
     /**
+     * Test POST JSON -> XML conversion - specified with _format param
+     */
+    @Test
+    public void testPOSTJSONToXML_formatParam() throws Throwable {
+        new FhirProxyTestKit(system, DSTU2FhirContext.class, AcceptXMLCreateFhirServer.class) {{
+            testConfig.getDynamicConfig().put("upstream-format", "XML");
+            testConfig.getDynamicConfig().put("validation-enabled", false);
+
+            try {
+                MediatorHTTPRequest POST_Request = POSTPatientRequest(Constants.FHIR_MIME_JSON, patientJSON);
+                fhirProxyHandler.tell(POST_Request, getRef());
+
+                Object result = expectMsgAnyClassOf(Duration.create(5, TimeUnit.SECONDS), FinishRequest.class, ExceptError.class);
+                if (result instanceof ExceptError) {
+                    throw ((ExceptError)result).getError();
+                }
+
+                assertEquals(new Integer(201), ((FinishRequest)result).getResponseStatus());
+            } finally {
+                cleanup();
+            }
+        }};
+    }
+
+    /**
      * Test POST XML -> JSON conversion
      */
     @Test
@@ -730,6 +795,33 @@ public class FhirProxyHandlerTest {
     }
 
     /**
+     * Test GET JSON -> JSON conversion - specified with _format param
+     */
+    @Test
+    public void testGETJSONToJSON_formatParam() throws Throwable {
+        new FhirProxyTestKit(system, DSTU2FhirContext.class, AcceptJSONGetFhirServer.class) {{
+            testConfig.getDynamicConfig().put("upstream-format", "JSON");
+            testConfig.getDynamicConfig().put("validation-enabled", false);
+
+            try {
+                MediatorHTTPRequest GET_Request = GETPatientRequest_formatParam(Constants.FHIR_MIME_JSON);
+                fhirProxyHandler.tell(GET_Request, getRef());
+
+                Object result = expectMsgAnyClassOf(Duration.create(5, TimeUnit.SECONDS), FinishRequest.class, ExceptError.class);
+                if (result instanceof ExceptError) {
+                    throw ((ExceptError) result).getError();
+                }
+
+                assertEquals(new Integer(200), ((FinishRequest) result).getResponseStatus());
+                assertEquals(Constants.FHIR_MIME_JSON, ((FinishRequest)result).getResponseMimeType());
+                JSONAssert.assertEquals(patientJSON, ((FinishRequest)result).getResponse(), JSONCompareMode.LENIENT);
+            } finally {
+                cleanup();
+            }
+        }};
+    }
+
+    /**
      * Test GET XML -> XML conversion
      */
     @Test
@@ -740,6 +832,40 @@ public class FhirProxyHandlerTest {
 
             try {
                 MediatorHTTPRequest GET_Request = GETPatientRequest(Constants.FHIR_MIME_XML);
+                fhirProxyHandler.tell(GET_Request, getRef());
+
+                Object result = expectMsgAnyClassOf(Duration.create(5, TimeUnit.SECONDS), FinishRequest.class, ExceptError.class);
+                if (result instanceof ExceptError) {
+                    throw ((ExceptError) result).getError();
+                }
+
+                assertEquals(new Integer(200), ((FinishRequest) result).getResponseStatus());
+                assertEquals(Constants.FHIR_MIME_XML, ((FinishRequest)result).getResponseMimeType());
+
+                Diff diff = DiffBuilder
+                        .compare(Input.fromString(patientXML))
+                        .withTest(Input.fromString(((FinishRequest)result).getResponse()))
+                        .ignoreComments()
+                        .ignoreWhitespace()
+                        .build();
+                assertFalse(diff.hasDifferences());
+            } finally {
+                cleanup();
+            }
+        }};
+    }
+
+    /**
+     * Test GET XML -> XML conversion - specified with _format param
+     */
+    @Test
+    public void testGETXMLToXML_formatParam() throws Throwable {
+        new FhirProxyTestKit(system, DSTU2FhirContext.class, AcceptXMLGetFhirServer.class) {{
+            testConfig.getDynamicConfig().put("upstream-format", "XML");
+            testConfig.getDynamicConfig().put("validation-enabled", false);
+
+            try {
+                MediatorHTTPRequest GET_Request = GETPatientRequest_formatParam(Constants.FHIR_MIME_XML);
                 fhirProxyHandler.tell(GET_Request, getRef());
 
                 Object result = expectMsgAnyClassOf(Duration.create(5, TimeUnit.SECONDS), FinishRequest.class, ExceptError.class);
@@ -791,6 +917,33 @@ public class FhirProxyHandlerTest {
     }
 
     /**
+     * Test GET XML -> JSON conversion - specified with _format param
+     */
+    @Test
+    public void testGETXMLToJSON_formatParam() throws Throwable {
+        new FhirProxyTestKit(system, DSTU2FhirContext.class, AcceptXMLGetFhirServer.class) {{
+            testConfig.getDynamicConfig().put("upstream-format", "XML");
+            testConfig.getDynamicConfig().put("validation-enabled", false);
+
+            try {
+                MediatorHTTPRequest GET_Request = GETPatientRequest_formatParam(Constants.FHIR_MIME_JSON);
+                fhirProxyHandler.tell(GET_Request, getRef());
+
+                Object result = expectMsgAnyClassOf(Duration.create(5, TimeUnit.SECONDS), FinishRequest.class, ExceptError.class);
+                if (result instanceof ExceptError) {
+                    throw ((ExceptError) result).getError();
+                }
+
+                assertEquals(new Integer(200), ((FinishRequest) result).getResponseStatus());
+                assertEquals(Constants.FHIR_MIME_JSON, ((FinishRequest)result).getResponseMimeType());
+                JSONAssert.assertEquals(patientJSON, ((FinishRequest)result).getResponse(), JSONCompareMode.LENIENT);
+            } finally {
+                cleanup();
+            }
+        }};
+    }
+
+    /**
      * Test GET JSON -> XML conversion
      */
     @Test
@@ -801,6 +954,40 @@ public class FhirProxyHandlerTest {
 
             try {
                 MediatorHTTPRequest GET_Request = GETPatientRequest(Constants.FHIR_MIME_XML);
+                fhirProxyHandler.tell(GET_Request, getRef());
+
+                Object result = expectMsgAnyClassOf(Duration.create(5, TimeUnit.SECONDS), FinishRequest.class, ExceptError.class);
+                if (result instanceof ExceptError) {
+                    throw ((ExceptError) result).getError();
+                }
+
+                assertEquals(new Integer(200), ((FinishRequest) result).getResponseStatus());
+                assertEquals(Constants.FHIR_MIME_XML, ((FinishRequest)result).getResponseMimeType());
+
+                Diff diff = DiffBuilder
+                        .compare(Input.fromString(patientXML))
+                        .withTest(Input.fromString(((FinishRequest)result).getResponse()))
+                        .ignoreComments()
+                        .ignoreWhitespace()
+                        .build();
+                assertFalse(diff.hasDifferences());
+            } finally {
+                cleanup();
+            }
+        }};
+    }
+
+    /**
+     * Test GET JSON -> XML conversion - specified with _format param
+     */
+    @Test
+    public void testGETJSONToXML_formatParam() throws Throwable {
+        new FhirProxyTestKit(system, DSTU2FhirContext.class, AcceptJSONGetFhirServer.class) {{
+            testConfig.getDynamicConfig().put("upstream-format", "JSON");
+            testConfig.getDynamicConfig().put("validation-enabled", false);
+
+            try {
+                MediatorHTTPRequest GET_Request = GETPatientRequest_formatParam(Constants.FHIR_MIME_XML);
                 fhirProxyHandler.tell(GET_Request, getRef());
 
                 Object result = expectMsgAnyClassOf(Duration.create(5, TimeUnit.SECONDS), FinishRequest.class, ExceptError.class);
