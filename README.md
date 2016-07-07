@@ -9,10 +9,10 @@ Validation and format conversions are handled with thanks to the [HAPI-FHIR](htt
 
 # Usage
 * Ensure that a [Java Runtime Environment](http://java.com/en/) is installed on your system. At a minimum Java 7 is required.
-* Download the latest release of the mediator: `curl -LO https://github.com/jembi/openhim-mediator-fhir-proxy/releases/download/v1.0.1/openhim-mediator-fhir-proxy-1.0.1.tar.gz`
-* Extract the downloaded archive: `tar -xzf openhim-mediator-fhir-proxy-1.0.1.tar.gz`
+* Download the latest release of the mediator: `curl -LO https://github.com/jembi/openhim-mediator-fhir-proxy/releases/download/v1.0.2/openhim-mediator-fhir-proxy-1.0.2.tar.gz`
+* Extract the downloaded archive: `tar -xzf openhim-mediator-fhir-proxy-1.0.2.tar.gz`
 * Edit the properties file `mediator.properties` and change it as required for your implementantion
-* The mediator is packaged as a standalone jar and can be run as follows: `java -jar mediator-fhir-proxy-1.0.1-jar-with-dependencies.jar --conf mediator.properties`
+* The mediator is packaged as a standalone jar and can be run as follows: `java -jar mediator-fhir-proxy-1.0.2-jar-with-dependencies.jar --conf mediator.properties`
 
 You can access the mediator config via the _Mediators_ page in the OpenHIM Console.
 
@@ -20,7 +20,7 @@ You can access the mediator config via the _Mediators_ page in the OpenHIM Conso
 * `git clone https://github.com/jembi/openhim-mediator-fhir-proxy.git`
 * `cd openhim-mediator-fhir-proxy`
 * `mvn install`
-* `java -jar target/mediator-fhir-proxy-1.0.1-jar-with-dependencies.jar`
+* `java -jar target/mediator-fhir-proxy-1.0.2-jar-with-dependencies.jar`
 
 # License
 This software is licensed under the Mozilla Public License Version 2.0.
