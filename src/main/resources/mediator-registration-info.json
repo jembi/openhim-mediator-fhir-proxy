@@ -1,8 +1,26 @@
 {
   "urn": "urn:mediator:fhir-proxy",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "name": "OpenHIM Mediator FHIR Proxy",
   "description": "Provides fhir-to-fhir adapter and validation services",
+  "defaultChannelConfig": [
+    {
+      "name": "FHIR Proxy",
+      "urlPattern": "^/fhir.*$",
+      "routes": [
+        {
+          "name": "OpenHIM Mediator FHIR Proxy Route",
+          "primary": true,
+          "host": "localhost",
+          "port": "8604",
+          "type": "http",
+          "forwardAuthHeader": false
+        }
+      ],
+      "allow": ["fhir"],
+      "type": "http"
+    }
+  ],
   "endpoints": [
     {
       "name": "OpenHIM Mediator FHIR Proxy Route",
