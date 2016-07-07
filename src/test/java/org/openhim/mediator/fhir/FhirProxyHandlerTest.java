@@ -14,6 +14,7 @@ import akka.actor.UntypedActor;
 import akka.testkit.JavaTestKit;
 import ca.uhn.fhir.context.FhirContext;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.json.JSONException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -39,6 +40,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
@@ -77,7 +79,7 @@ public class FhirProxyHandlerTest {
                     "/fhir/Patient",
                     body,
                     Collections.singletonMap("Content-Type", contentType),
-                    Collections.<String, String>emptyMap()
+                    Collections.<Pair<String, String>>emptyList()
             );
         }
 
@@ -93,7 +95,7 @@ public class FhirProxyHandlerTest {
                     "/fhir/Patient/1",
                     null,
                     Collections.singletonMap("Accept", accept),
-                    Collections.<String, String>emptyMap()
+                    Collections.<Pair<String, String>>emptyList()
             );
         }
 
@@ -109,7 +111,7 @@ public class FhirProxyHandlerTest {
                     "/fhir/Patient/1",
                     null,
                     Collections.<String, String>emptyMap(),
-                    Collections.singletonMap("_format", accept)
+                    Collections.singletonList(Pair.of("_format", accept))
             );
         }
     }
@@ -148,8 +150,12 @@ public class FhirProxyHandlerTest {
             assertEquals(testConfig.getDynamicConfig().get("upstream-port"), new Double(request.getPort()));
             assertEquals(Constants.FHIR_MIME_JSON, request.getHeaders().get("Content-Type"));
 
-            if (request.getParams()!=null && request.getParams().containsKey("_format")) {
-                fail("Mediator should not forward _format param");
+            if (request.getParams()!=null) {
+                for (Pair<String, String> param : request.getParams()) {
+                    if (param.getKey().equals("_format")) {
+                        fail("Mediator should not forward _format param");
+                    }
+                }
             }
 
             try {
@@ -183,8 +189,12 @@ public class FhirProxyHandlerTest {
             assertEquals(testConfig.getDynamicConfig().get("upstream-port"), new Double(request.getPort()));
             assertEquals(Constants.FHIR_MIME_XML, request.getHeaders().get("Content-Type"));
 
-            if (request.getParams()!=null && request.getParams().containsKey("_format")) {
-                fail("Mediator should not forward _format param");
+            if (request.getParams()!=null) {
+                for (Pair<String, String> param : request.getParams()) {
+                    if (param.getKey().equals("_format")) {
+                        fail("Mediator should not forward _format param");
+                    }
+                }
             }
 
             Diff diff = DiffBuilder
@@ -220,8 +230,12 @@ public class FhirProxyHandlerTest {
             assertEquals(testConfig.getDynamicConfig().get("upstream-port"), new Double(request.getPort()));
             assertEquals(Constants.FHIR_MIME_JSON, request.getHeaders().get("Accept"));
 
-            if (request.getParams()!=null && request.getParams().containsKey("_format")) {
-                fail("Mediator should not forward _format param");
+            if (request.getParams()!=null) {
+                for (Pair<String, String> param : request.getParams()) {
+                    if (param.getKey().equals("_format")) {
+                        fail("Mediator should not forward _format param");
+                    }
+                }
             }
         }
     }
@@ -249,8 +263,12 @@ public class FhirProxyHandlerTest {
             assertEquals(testConfig.getDynamicConfig().get("upstream-port"), new Double(request.getPort()));
             assertEquals(Constants.FHIR_MIME_XML, request.getHeaders().get("Accept"));
 
-            if (request.getParams()!=null && request.getParams().containsKey("_format")) {
-                fail("Mediator should not forward _format param");
+            if (request.getParams()!=null) {
+                for (Pair<String, String> param : request.getParams()) {
+                    if (param.getKey().equals("_format")) {
+                        fail("Mediator should not forward _format param");
+                    }
+                }
             }
         }
     }
@@ -492,7 +510,7 @@ public class FhirProxyHandlerTest {
                         "/fhir/Patient",
                         patientJSON_invalid,
                         headers,
-                        Collections.<String, String>emptyMap()
+                        Collections.<Pair<String, String>>emptyList()
                 );
 
                 fhirProxyHandler.tell(POST_Request, getRef());
@@ -533,7 +551,7 @@ public class FhirProxyHandlerTest {
                         "/fhir/Patient",
                         patientJSON_invalid,
                         headers,
-                        Collections.<String, String>emptyMap()
+                        Collections.<Pair<String, String>>emptyList()
                 );
 
                 fhirProxyHandler.tell(POST_Request, getRef());
@@ -565,8 +583,8 @@ public class FhirProxyHandlerTest {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("Content-Type", Constants.FHIR_MIME_JSON);
 
-                Map<String, String> params = new HashMap<>();
-                params.put("_format", Constants.FHIR_MIME_XML);
+                List<Pair<String, String>> params = new ArrayList<>();
+                params.add(Pair.of("_format", Constants.FHIR_MIME_XML));
 
                 MediatorHTTPRequest POST_Request = new MediatorHTTPRequest(
                         getRef(),
@@ -612,8 +630,8 @@ public class FhirProxyHandlerTest {
                 headers.put("Content-Type", Constants.FHIR_MIME_JSON);
                 headers.put("Accept", Constants.FHIR_MIME_JSON);
 
-                Map<String, String> params = new HashMap<>();
-                params.put("_format", Constants.FHIR_MIME_XML);
+                List<Pair<String, String>> params = new ArrayList<>();
+                params.add(Pair.of("_format", Constants.FHIR_MIME_XML));
 
                 MediatorHTTPRequest POST_Request = new MediatorHTTPRequest(
                         getRef(),

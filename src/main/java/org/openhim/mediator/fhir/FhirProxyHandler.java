@@ -17,6 +17,7 @@ import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.util.OperationOutcomeUtil;
 import ca.uhn.fhir.validation.FhirValidator;
 import ca.uhn.fhir.validation.ValidationResult;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.HttpStatus;
 import org.hl7.fhir.instance.model.api.IBaseOperationOutcome;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -26,7 +27,8 @@ import org.openhim.mediator.engine.messages.FinishRequest;
 import org.openhim.mediator.engine.messages.MediatorHTTPRequest;
 import org.openhim.mediator.engine.messages.MediatorHTTPResponse;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -126,14 +128,14 @@ public class FhirProxyHandler extends UntypedActor {
         return copy;
     }
 
-    private Map<String, String> copyParams(Map<String, String> params) {
-        Map<String, String> copy = new HashMap<>();
-        for (String param : params.keySet()) {
-            if ("_format".equalsIgnoreCase(param)) {
+    private List<Pair<String, String>> copyParams(List<Pair<String, String>> params) {
+        List<Pair<String, String>> copy = new ArrayList<>();
+        for (Pair<String, String> param : params) {
+            if ("_format".equalsIgnoreCase(param.getKey())) {
                 continue;
             }
 
-            copy.put(param, params.get(param));
+            copy.add(param);
         }
         return copy;
     }
@@ -252,9 +254,10 @@ public class FhirProxyHandler extends UntypedActor {
         }
 
         // secondly for _format param
-        String _format = request.getParams().get("_format");
-        if (_format!=null) {
-            return _format;
+        for (Pair<String, String> param : request.getParams()) {
+            if (param.getKey().equals("_format")) {
+                return param.getValue();
+            }
         }
 
         // thirdly check for the format the client sent content with
