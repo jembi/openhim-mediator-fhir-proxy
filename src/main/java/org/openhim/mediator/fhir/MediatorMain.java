@@ -103,7 +103,7 @@ public class MediatorMain {
         });
 
         log.info("Starting mediator server...");
-        server.start();
+        server.start(false);
 
         log.info(String.format("%s listening on %s:%s", config.getName(), config.getServerHost(), config.getServerPort()));
         Thread.currentThread().join();
