@@ -12,6 +12,7 @@ import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.model.api.Bundle;
 import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.util.OperationOutcomeUtil;
@@ -31,7 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
 
 public class FhirProxyHandler extends UntypedActor {
     private static class FhirValidationResult {
@@ -61,25 +61,23 @@ public class FhirProxyHandler extends UntypedActor {
     private String openhimTrxID;
     private String upstreamFormat;
 
-
     public FhirProxyHandler(MediatorConfig config) {
         this.config = config;
     }
-
 
     private void loadFhirContext() {
         ActorSelection actor = getContext().actorSelection(config.userPathFor("fhir-context"));
         actor.tell(new FhirContextActor.FhirContextRequest(requestHandler, getSelf()), getSelf());
     }
 
-
     private FhirValidationResult validateFhirRequest(Contents contents) {
         FhirValidationResult result = new FhirValidationResult();
         FhirValidator validator = fhirContext.newValidator();
 
-        IParser parser = newParser(contents.contentType);
-        IBaseResource resource = parser.parseResource(contents.content);
-        ValidationResult vr = validator.validateWithResult(resource);
+        IParser parser = newParser(contents.contentType);        
+        Bundle bundle = parser.parseBundle(contents.content);        
+        
+        ValidationResult vr = validator.validateWithResult(bundle);
 
         if (vr.isSuccessful()) {
             result.passed = true;
@@ -90,7 +88,6 @@ public class FhirProxyHandler extends UntypedActor {
 
         return result;
     }
-
 
     private void forwardRequest(Map<String, String> headers, String body) {
         String upstreamAccept = determineTargetContentType(determineClientContentType());
@@ -175,11 +172,11 @@ public class FhirProxyHandler extends UntypedActor {
         log.info("[" + openhimTrxID + "] Converting request body to " + targetContentType);
 
         IParser inParser = newParser(contents.contentType);
-        IBaseResource resource = inParser.parseResource(contents.content);
+        Bundle bundle = inParser.parseBundle(contents.content);
 
         if ("JSON".equalsIgnoreCase(upstreamFormat) || "XML".equalsIgnoreCase(upstreamFormat)) {
             IParser outParser = newParser(targetContentType);
-            String converted = outParser.setPrettyPrint(true).encodeResourceToString(resource);
+            String converted = outParser.setPrettyPrint(true).encodeBundleToString(bundle);
             return new Contents(targetContentType, converted);
         } else {
             requestHandler.tell(new ExceptError(new RuntimeException("Unknown upstream format specified " + upstreamFormat)), getSelf());
