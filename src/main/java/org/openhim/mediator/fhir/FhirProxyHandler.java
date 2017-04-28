@@ -294,10 +294,10 @@ public class FhirProxyHandler extends UntypedActor {
         log.info("[" + openhimTrxID + "] Converting response body to " + clientAccept);
 
         IParser inParser = newParser(responseContents.contentType);
-        IBaseResource resource = inParser.parseResource(responseContents.content);
+        Bundle bundle = inParser.parseBundle(responseContents.content);
 
         IParser outParser = newParser(clientAccept);
-        String converted = outParser.setPrettyPrint(true).encodeResourceToString(resource);
+        String converted = outParser.setPrettyPrint(true).encodeBundleToString(bundle);
         return new Contents(clientAccept, converted);
     }
 

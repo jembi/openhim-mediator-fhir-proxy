@@ -1,132 +1,135 @@
 {
-  "resourceType": "Patient",
-  "id": "example",
-  "text": {
-    "status": "generated",
-    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Peter Chalmers</div>"
-  },
-  "identifier": [
+  "resourceType":"Bundle",
+  "title":"Patient Data Creation",
+  "id":"urn:uuid:f2b41997-f5ca-4ef7-90b5-20b1470ddcc5",
+  "updated":"2015-04-25T10:44:04.585+02:00",
+  "entry":[
     {
-      "use": "usual",
-      "type": {
-        "coding": [
+      "title":"Message Header",
+      "id":"http://hl7.org/fhir/messageheader",
+      "updated":"2015-04-25T10:44:04.585+02:00",
+      "content":{
+        "resourceType":"MessageHeader",
+        "identifier":"f2b41997-f5ca-4ef7-90b5-20b1470ddcc5",
+        "timestamp":"2015-04-25T10:44:04.585+02:00",
+        "event":{
+          "system":"http://hl7.org/fhir/message-type",
+          "code":"Patient Data Creation"
+        },
+        "source":{
+          "name":"Data creator",
+          "software":"Integration",
+          "contact":{
+            "system":"email",
+            "value":"support@info.com",
+            "use":"work"
+          },
+          "endpoint":"http://fhirserver.com:80/rest/fhir/"
+        },
+        "destination":[
           {
-            "system": "http://hl7.org/fhir/v2/0203",
-            "code": "MR"
+            "name":"Health HUB",
+            "endpoint":"http://hhub.org:80"
           }
         ]
-      },
-      "system": "urn:oid:1.2.36.146.595.217.0.1",
-      "value": "12345",
-      "period": {
-        "start": "2001-05-06"
-      },
-      "assigner": {
-        "display": "Acme Healthcare"
       }
-    }
-  ],
-  "active": true,
-  "name": [
-    {
-      "use": "official",
-      "family": [
-        "Chalmers"
-      ],
-      "given": [
-        "Peter",
-        "James"
-      ]
     },
     {
-      "use": "usual",
-      "given": [
-        "Jim"
-      ]
-    }
-  ],
-  "telecom": [
-    {
-      "use": "home"
-    },
-    {
-      "system": "phone",
-      "value": "(03) 5555 6473",
-      "use": "work"
-    }
-  ],
-  "gender": "male",
-  "birthDate": "1974-12-25",
-  "_birthDate": {
-    "extension": [
-      {
-        "url": "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
-        "valueDateTime": "1974-12-25T14:35:45-05:00"
-      }
-    ]
-  },
-  "deceasedBoolean": false,
-  "address": [
-    {
-      "use": "home",
-      "type": "both",
-      "line": [
-        "534 Erewhon St"
-      ],
-      "city": "PleasantVille",
-      "district": "Rainbow",
-      "state": "Vic",
-      "postalCode": "3999",
-      "period": {
-        "start": "1974-12-25"
-      }
-    }
-  ],
-  "contact": [
-    {
-      "relationship": [
-        {
-          "coding": [
+      "title":"Patient",
+      "id":"http://hl7.org/fhir/Patient/842701",
+      "updated":"2015-04-25T10:44:04.585+02:00",
+      "content":{
+        "resourceType":"Patient",
+        "extension":[
+          {
+            "url":"http://acme.com/fhir/v3/admin#medical-scheme",
+            "valueCodeableConcept":{
+              "coding":[
+                {
+                  "system":"http://acme.com/fhir/v3/admin#medical-scheme",
+                  "code":"AMS",
+                  "display":"ACME Medical Scheme"
+                }
+              ]
+            }
+          }
+        ],
+        "identifier":[
+          {
+            "label":"BeneficiaryNumber",
+            "value":"02"
+          },
+          {
+            "label":"MembershipNumber",
+            "value":"83208401613"
+          },
+          {
+            "label":"IDNumber",
+            "value":"5312240411335"
+          },
+          {
+            "label":"UniquePersonId",
+            "value":"12701"
+          }
+        ],
+        "name":[
+          {
+            "use":"usual",
+            "family":[
+              "Smith"
+            ],
+            "given":[
+              "Jane"
+            ],
+            "prefix":[
+              "MISS"
+            ]
+          }
+        ],
+        "telecom":[
+          {
+            "system":"email",
+            "value":"jane@smith.com",
+            "use":"home"
+          },
+          {
+            "system":"phone",
+            "value":"0724689659",
+            "use":"mobile"
+          }
+        ],
+        "gender":{
+          "coding":[
             {
-              "system": "http://hl7.org/fhir/patient-contact-relationship",
-              "code": "partner"
+              "system":"http://hl7.org/fhir/v3/AdministrativeGender",
+              "code":"F",
+              "display":"FEMALE"
             }
           ]
-        }
-      ],
-      "name": {
-        "family": [
-          "du",
-          "Marché"
-        ],
-        "_family": [
+        },
+        "birthDate":"1953-12-24",
+        "address":[
           {
-            "extension": [
+            "use":"home",
+            "line":[
+              "PO BOX 1234"
+            ],
+            "city":"Phuket",
+            "zip":"4567"
+          }
+        ],
+        "communication":[
+          {
+            "coding":[
               {
-                "url": "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier",
-                "valueCode": "VV"
+                "system":"urn:hl7-org:sid/iso-639",
+                "code":"ENG",
+                "display":"English"
               }
             ]
-          },
-          null
-        ],
-        "given": [
-          "Bénédicte"
+          }
         ]
-      },
-      "telecom": [
-        {
-          "system": "phone",
-          "value": "+33 (237) 998327"
-        }
-      ],
-      "gender": "female",
-      "period": {
-        "start": "2012"
       }
     }
-  ],
-  "managingOrganization": {
-    "reference": "Organization/1"
-  }
+  ]
 }

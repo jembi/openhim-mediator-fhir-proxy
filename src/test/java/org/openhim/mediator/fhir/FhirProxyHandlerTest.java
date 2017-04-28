@@ -40,7 +40,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
@@ -116,11 +115,11 @@ public class FhirProxyHandlerTest {
         }
     }
 
-    private static class DSTU2FhirContext extends UntypedActor {
+    private static class DSTU1FhirContext extends UntypedActor {
         @Override
         public void onReceive(Object o) throws Exception {
             if (o instanceof FhirContextActor.FhirContextRequest) {
-                getSender().tell(new FhirContextActor.FhirContextResponse(null, FhirContext.forDstu2()), getSelf());
+                getSender().tell(new FhirContextActor.FhirContextResponse(null, FhirContext.forDstu1()), getSelf());
             } else {
                 unhandled(o);
             }
@@ -307,7 +306,7 @@ public class FhirProxyHandlerTest {
     @BeforeClass
     public static void setup() throws IOException {
         system = ActorSystem.create();
-        testConfig.getDynamicConfig().put("fhir-context", "DSTU2");
+        testConfig.getDynamicConfig().put("fhir-context", "DSTU1");
         testConfig.getDynamicConfig().put("upstream-scheme", "http");
         testConfig.getDynamicConfig().put("upstream-host", "localhost");
         testConfig.getDynamicConfig().put("upstream-port", 80d);
@@ -332,7 +331,7 @@ public class FhirProxyHandlerTest {
      */
     @Test
     public void testPassthrough_POST() throws Throwable {
-        new FhirProxyTestKit(system, DSTU2FhirContext.class, AcceptJSONCreateFhirServer.class) {{
+        new FhirProxyTestKit(system, DSTU1FhirContext.class, AcceptJSONCreateFhirServer.class) {{
             testConfig.getDynamicConfig().put("upstream-format", "Client");
             testConfig.getDynamicConfig().put("validation-enabled", false);
 
@@ -357,7 +356,7 @@ public class FhirProxyHandlerTest {
      */
     @Test
     public void testPassthrough_GET() throws Throwable {
-        new FhirProxyTestKit(system, DSTU2FhirContext.class, AcceptJSONGetFhirServer.class) {{
+        new FhirProxyTestKit(system, DSTU1FhirContext.class, AcceptJSONGetFhirServer.class) {{
             testConfig.getDynamicConfig().put("upstream-format", "Client");
             testConfig.getDynamicConfig().put("validation-enabled", false);
 
@@ -385,7 +384,7 @@ public class FhirProxyHandlerTest {
      */
     @Test
     public void testValidContentShouldForward() throws Throwable {
-        new FhirProxyTestKit(system, DSTU2FhirContext.class, AcceptJSONCreateFhirServer.class) {{
+        new FhirProxyTestKit(system, DSTU1FhirContext.class, AcceptJSONCreateFhirServer.class) {{
             testConfig.getDynamicConfig().put("upstream-format", "Client");
             testConfig.getDynamicConfig().put("validation-enabled", true);
 
@@ -410,7 +409,7 @@ public class FhirProxyHandlerTest {
      */
     @Test
     public void testInvalidContentShouldNotForward() throws Throwable {
-        new FhirProxyTestKit(system, DSTU2FhirContext.class, TrapServer.class) {{
+        new FhirProxyTestKit(system, DSTU1FhirContext.class, TrapServer.class) {{
             testConfig.getDynamicConfig().put("upstream-format", "Client");
             testConfig.getDynamicConfig().put("validation-enabled", true);
 
@@ -435,7 +434,7 @@ public class FhirProxyHandlerTest {
      */
     @Test
     public void testInvalidContentShouldRespondWithBadRequest() throws Throwable {
-        new FhirProxyTestKit(system, DSTU2FhirContext.class, TrapServer.class) {{
+        new FhirProxyTestKit(system, DSTU1FhirContext.class, TrapServer.class) {{
             testConfig.getDynamicConfig().put("upstream-format", "Client");
             testConfig.getDynamicConfig().put("validation-enabled", true);
 
@@ -463,7 +462,7 @@ public class FhirProxyHandlerTest {
      */
     @Test
     public void testInvalidJSONSyntaxContentShouldRespondWithBadRequest() throws Throwable {
-        new FhirProxyTestKit(system, DSTU2FhirContext.class, TrapServer.class) {{
+        new FhirProxyTestKit(system, DSTU1FhirContext.class, TrapServer.class) {{
             testConfig.getDynamicConfig().put("upstream-format", "Client");
             testConfig.getDynamicConfig().put("validation-enabled", true);
 
@@ -490,7 +489,7 @@ public class FhirProxyHandlerTest {
      */
     @Test
     public void testInvalidContentShouldFormatAccordingToAccept_JSON() throws Throwable {
-        new FhirProxyTestKit(system, DSTU2FhirContext.class, TrapServer.class) {{
+        new FhirProxyTestKit(system, DSTU1FhirContext.class, TrapServer.class) {{
             testConfig.getDynamicConfig().put("upstream-format", "Client");
             testConfig.getDynamicConfig().put("validation-enabled", true);
 
@@ -531,7 +530,7 @@ public class FhirProxyHandlerTest {
 
     @Test
     public void testInvalidContentShouldFormatAccordingToAccept_XML() throws Throwable {
-        new FhirProxyTestKit(system, DSTU2FhirContext.class, TrapServer.class) {{
+        new FhirProxyTestKit(system, DSTU1FhirContext.class, TrapServer.class) {{
             testConfig.getDynamicConfig().put("upstream-format", "Client");
             testConfig.getDynamicConfig().put("validation-enabled", true);
 
@@ -575,7 +574,7 @@ public class FhirProxyHandlerTest {
      */
     @Test
     public void testInvalidContentShouldFormatAccordingToFormatParam_XML() throws Throwable {
-        new FhirProxyTestKit(system, DSTU2FhirContext.class, TrapServer.class) {{
+        new FhirProxyTestKit(system, DSTU1FhirContext.class, TrapServer.class) {{
             testConfig.getDynamicConfig().put("upstream-format", "Client");
             testConfig.getDynamicConfig().put("validation-enabled", true);
 
@@ -621,7 +620,7 @@ public class FhirProxyHandlerTest {
      */
     @Test
     public void testInvalidContentAcceptHeaderShouldTakePrecedence() throws Throwable {
-        new FhirProxyTestKit(system, DSTU2FhirContext.class, TrapServer.class) {{
+        new FhirProxyTestKit(system, DSTU1FhirContext.class, TrapServer.class) {{
             testConfig.getDynamicConfig().put("upstream-format", "Client");
             testConfig.getDynamicConfig().put("validation-enabled", true);
 
@@ -667,7 +666,7 @@ public class FhirProxyHandlerTest {
      */
     @Test
     public void testPOSTJSONToXML() throws Throwable {
-        new FhirProxyTestKit(system, DSTU2FhirContext.class, AcceptXMLCreateFhirServer.class) {{
+        new FhirProxyTestKit(system, DSTU1FhirContext.class, AcceptXMLCreateFhirServer.class) {{
             testConfig.getDynamicConfig().put("upstream-format", "XML");
             testConfig.getDynamicConfig().put("validation-enabled", false);
 
@@ -692,7 +691,7 @@ public class FhirProxyHandlerTest {
      */
     @Test
     public void testPOSTJSONToXML_formatParam() throws Throwable {
-        new FhirProxyTestKit(system, DSTU2FhirContext.class, AcceptXMLCreateFhirServer.class) {{
+        new FhirProxyTestKit(system, DSTU1FhirContext.class, AcceptXMLCreateFhirServer.class) {{
             testConfig.getDynamicConfig().put("upstream-format", "XML");
             testConfig.getDynamicConfig().put("validation-enabled", false);
 
@@ -717,7 +716,7 @@ public class FhirProxyHandlerTest {
      */
     @Test
     public void testPOSTXMLToJSON() throws Throwable {
-        new FhirProxyTestKit(system, DSTU2FhirContext.class, AcceptJSONCreateFhirServer.class) {{
+        new FhirProxyTestKit(system, DSTU1FhirContext.class, AcceptJSONCreateFhirServer.class) {{
             testConfig.getDynamicConfig().put("upstream-format", "JSON");
             testConfig.getDynamicConfig().put("validation-enabled", false);
 
@@ -742,7 +741,7 @@ public class FhirProxyHandlerTest {
      */
     @Test
     public void testPOSTXMLToXML() throws Throwable {
-        new FhirProxyTestKit(system, DSTU2FhirContext.class, AcceptXMLCreateFhirServer.class) {{
+        new FhirProxyTestKit(system, DSTU1FhirContext.class, AcceptXMLCreateFhirServer.class) {{
             testConfig.getDynamicConfig().put("upstream-format", "XML");
             testConfig.getDynamicConfig().put("validation-enabled", false);
 
@@ -767,7 +766,7 @@ public class FhirProxyHandlerTest {
      */
     @Test
     public void testPOSTJSONToJSON() throws Throwable {
-        new FhirProxyTestKit(system, DSTU2FhirContext.class, AcceptJSONCreateFhirServer.class) {{
+        new FhirProxyTestKit(system, DSTU1FhirContext.class, AcceptJSONCreateFhirServer.class) {{
             testConfig.getDynamicConfig().put("upstream-format", "JSON");
             testConfig.getDynamicConfig().put("validation-enabled", false);
 
@@ -792,7 +791,7 @@ public class FhirProxyHandlerTest {
      */
     @Test
     public void testGETJSONToJSON() throws Throwable {
-        new FhirProxyTestKit(system, DSTU2FhirContext.class, AcceptJSONGetFhirServer.class) {{
+        new FhirProxyTestKit(system, DSTU1FhirContext.class, AcceptJSONGetFhirServer.class) {{
             testConfig.getDynamicConfig().put("upstream-format", "JSON");
             testConfig.getDynamicConfig().put("validation-enabled", false);
 
@@ -819,7 +818,7 @@ public class FhirProxyHandlerTest {
      */
     @Test
     public void testGETJSONToJSON_formatParam() throws Throwable {
-        new FhirProxyTestKit(system, DSTU2FhirContext.class, AcceptJSONGetFhirServer.class) {{
+        new FhirProxyTestKit(system, DSTU1FhirContext.class, AcceptJSONGetFhirServer.class) {{
             testConfig.getDynamicConfig().put("upstream-format", "JSON");
             testConfig.getDynamicConfig().put("validation-enabled", false);
 
@@ -846,7 +845,7 @@ public class FhirProxyHandlerTest {
      */
     @Test
     public void testGETXMLToXML() throws Throwable {
-        new FhirProxyTestKit(system, DSTU2FhirContext.class, AcceptXMLGetFhirServer.class) {{
+        new FhirProxyTestKit(system, DSTU1FhirContext.class, AcceptXMLGetFhirServer.class) {{
             testConfig.getDynamicConfig().put("upstream-format", "XML");
             testConfig.getDynamicConfig().put("validation-enabled", false);
 
@@ -880,7 +879,7 @@ public class FhirProxyHandlerTest {
      */
     @Test
     public void testGETXMLToXML_formatParam() throws Throwable {
-        new FhirProxyTestKit(system, DSTU2FhirContext.class, AcceptXMLGetFhirServer.class) {{
+        new FhirProxyTestKit(system, DSTU1FhirContext.class, AcceptXMLGetFhirServer.class) {{
             testConfig.getDynamicConfig().put("upstream-format", "XML");
             testConfig.getDynamicConfig().put("validation-enabled", false);
 
@@ -914,7 +913,7 @@ public class FhirProxyHandlerTest {
      */
     @Test
     public void testGETXMLToJSON() throws Throwable {
-        new FhirProxyTestKit(system, DSTU2FhirContext.class, AcceptXMLGetFhirServer.class) {{
+        new FhirProxyTestKit(system, DSTU1FhirContext.class, AcceptXMLGetFhirServer.class) {{
             testConfig.getDynamicConfig().put("upstream-format", "XML");
             testConfig.getDynamicConfig().put("validation-enabled", false);
 
@@ -941,7 +940,7 @@ public class FhirProxyHandlerTest {
      */
     @Test
     public void testGETXMLToJSON_formatParam() throws Throwable {
-        new FhirProxyTestKit(system, DSTU2FhirContext.class, AcceptXMLGetFhirServer.class) {{
+        new FhirProxyTestKit(system, DSTU1FhirContext.class, AcceptXMLGetFhirServer.class) {{
             testConfig.getDynamicConfig().put("upstream-format", "XML");
             testConfig.getDynamicConfig().put("validation-enabled", false);
 
@@ -956,7 +955,8 @@ public class FhirProxyHandlerTest {
 
                 assertEquals(new Integer(200), ((FinishRequest) result).getResponseStatus());
                 assertEquals(Constants.FHIR_MIME_JSON, ((FinishRequest)result).getResponseMimeType());
-                JSONAssert.assertEquals(patientJSON, ((FinishRequest)result).getResponse(), JSONCompareMode.LENIENT);
+                String response = ((FinishRequest) result).getResponse();
+                JSONAssert.assertEquals(patientJSON, response, JSONCompareMode.LENIENT);
             } finally {
                 cleanup();
             }
@@ -968,7 +968,7 @@ public class FhirProxyHandlerTest {
      */
     @Test
     public void testGETJSONToXML() throws Throwable {
-        new FhirProxyTestKit(system, DSTU2FhirContext.class, AcceptJSONGetFhirServer.class) {{
+        new FhirProxyTestKit(system, DSTU1FhirContext.class, AcceptJSONGetFhirServer.class) {{
             testConfig.getDynamicConfig().put("upstream-format", "JSON");
             testConfig.getDynamicConfig().put("validation-enabled", false);
 
@@ -1002,7 +1002,7 @@ public class FhirProxyHandlerTest {
      */
     @Test
     public void testGETJSONToXML_formatParam() throws Throwable {
-        new FhirProxyTestKit(system, DSTU2FhirContext.class, AcceptJSONGetFhirServer.class) {{
+        new FhirProxyTestKit(system, DSTU1FhirContext.class, AcceptJSONGetFhirServer.class) {{
             testConfig.getDynamicConfig().put("upstream-format", "JSON");
             testConfig.getDynamicConfig().put("validation-enabled", false);
 

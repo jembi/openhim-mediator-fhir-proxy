@@ -1,96 +1,105 @@
-<?xml version="1.0" encoding="UTF-8"?><Patient xmlns="http://hl7.org/fhir">
-  <id value="example"/>
-  <text>
-    <status value="generated"/>
-    <div xmlns="http://www.w3.org/1999/xhtml">Peter Chalmers</div>
-  </text>
-<!--   MRN assigned by ACME healthcare on 6-May 2001   -->
-  <identifier>
-    <use value="usual"/>
-    <type>
-      <coding>
-        <system value="http://hl7.org/fhir/v2/0203"/>
-        <code value="MR"/>
-      </coding>
-    </type>
-    <system value="urn:oid:1.2.36.146.595.217.0.1"/>
-    <value value="12345"/>
-    <period>
-      <start value="2001-05-06"/>
-    </period>
-    <assigner>
-      <display value="Acme Healthcare"/>
-    </assigner>
-  </identifier>
-  <active value="true"/>
-<!--   Peter James Chalmers, but called "Jim"   -->
-  <name>
-    <use value="official"/>
-    <family value="Chalmers"/>
-    <given value="Peter"/>
-    <given value="James"/>
-  </name>
-  <name>
-    <use value="usual"/>
-    <given value="Jim"/>
-  </name>
-  <telecom>
-    <use value="home"/>
-  <!--   home communication details aren't known   -->
-  </telecom>
-  <telecom>
-    <system value="phone"/>
-    <value value="(03) 5555 6473"/>
-    <use value="work"/>
-  </telecom>
-<!--   use FHIR code system for male / female   -->
-  <gender value="male"/>
-  <birthDate value="1974-12-25">
-    <extension url="http://hl7.org/fhir/StructureDefinition/patient-birthTime">
-      <valueDateTime value="1974-12-25T14:35:45-05:00"/>
-    </extension>
-  </birthDate>
-  <deceasedBoolean value="false"/>
-  <address>
-    <use value="home"/>
-    <type value="both"/>
-    <line value="534 Erewhon St"/>
-    <city value="PleasantVille"/>
-    <district value="Rainbow"/>
-    <state value="Vic"/>
-    <postalCode value="3999"/>
-    <period>
-      <start value="1974-12-25"/>
-    </period>
-  </address>
-  <contact>
-    <relationship>
-      <coding>
-        <system value="http://hl7.org/fhir/patient-contact-relationship"/>
-        <code value="partner"/>
-      </coding>
-    </relationship>
-    <name>
-      <family value="du">
-      <!--   the "du" part is a family name prefix (VV in iso 21090)   -->
-        <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier">
-          <valueCode value="VV"/>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Patient Data Creation</title>
+  <id>urn:uuid:f2b41997-f5ca-4ef7-90b5-20b1470ddcc5</id>
+  <updated>2015-04-25T10:44:04.585+02:00</updated>
+  <entry>
+    <title>Message Header</title>
+    <id>http://hl7.org/fhir/messageheader</id>
+    <updated>2015-04-25T10:44:04.585+02:00</updated>
+    <content type="text/xml">
+      <MessageHeader xmlns="http://hl7.org/fhir">
+        <identifier value="f2b41997-f5ca-4ef7-90b5-20b1470ddcc5"/>
+        <timestamp value="2015-04-25T10:44:04.585+02:00"/>
+        <event>
+          <system value="http://hl7.org/fhir/message-type"/>
+          <code value="Patient Data Creation"/>
+        </event>
+        <source>
+          <name value="Data creator"/>
+          <software value="Integration"/>
+          <contact>
+            <system value="email"/>
+            <value value="support@info.com"/>
+            <use value="work"/>
+          </contact>
+          <endpoint value="http://fhirserver.com:80/rest/fhir/"/>
+        </source>
+        <destination>
+          <name value="Health HUB"/>
+          <endpoint value="http://hhub.org:80"/>
+        </destination>
+      </MessageHeader>
+    </content>
+  </entry>
+  <entry>
+    <title>Patient</title>
+    <id>http://hl7.org/fhir/Patient/842701</id>
+    <updated>2015-04-25T10:44:04.585+02:00</updated>
+    <content type="text/xml">
+      <Patient xmlns="http://hl7.org/fhir">
+        <extension url="http://acme.com/fhir/v3/admin#medical-scheme">
+          <valueCodeableConcept>
+            <coding>
+              <system value="http://acme.com/fhir/v3/admin#medical-scheme"/>
+              <code value="AMS"/>
+              <display value="ACME Medical Scheme"/>
+            </coding>
+          </valueCodeableConcept>
         </extension>
-      </family>
-      <family value="Marché"/>
-      <given value="Bénédicte"/>
-    </name>
-    <telecom>
-      <system value="phone"/>
-      <value value="+33 (237) 998327"/>
-    </telecom>
-    <gender value="female"/>
-    <period>
-    <!--   The contact relationship started in 2012   -->
-      <start value="2012"/>
-    </period>
-  </contact>
-  <managingOrganization>
-    <reference value="Organization/1"/>
-  </managingOrganization>
-</Patient>
+        <identifier>
+          <label value="BeneficiaryNumber"/>
+          <value value="02"/>
+        </identifier>
+        <identifier>
+          <label value="MembershipNumber"/>
+          <value value="83208401613"/>
+        </identifier>
+        <identifier>
+          <label value="IDNumber"/>
+          <value value="5312240411335"/>
+        </identifier>
+        <identifier>
+          <label value="UniquePersonId"/>
+          <value value="12701"/>
+        </identifier>
+        <name>
+          <use value="usual"/>
+          <family value="Smith"/>
+          <given value="Jane"/>
+          <prefix value="MISS"/>
+        </name>
+        <telecom>
+          <system value="email"/>
+          <value value="jane@smith.com"/>
+          <use value="home"/>
+        </telecom>
+        <telecom>
+          <system value="phone"/>
+          <value value="0724689659"/>
+          <use value="mobile"/>
+        </telecom>
+        <gender>
+          <coding>
+            <system value="http://hl7.org/fhir/v3/AdministrativeGender"/>
+            <code value="F"/>
+            <display value="FEMALE"/>
+          </coding>
+        </gender>
+        <birthDate value="1953-12-24"/>
+        <address>
+          <use value="home"/>
+          <line value="PO BOX 1234"/>
+          <city value="Phuket"/>
+          <zip value="4567"/>
+        </address>
+        <communication>
+          <coding>
+            <system value="urn:hl7-org:sid/iso-639"/>
+            <code value="ENG"/>
+            <display value="English"/>
+          </coding>
+        </communication>
+      </Patient>
+    </content>
+  </entry>
+</feed>
