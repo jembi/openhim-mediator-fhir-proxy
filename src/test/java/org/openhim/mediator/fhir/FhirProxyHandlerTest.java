@@ -311,8 +311,8 @@ public class FhirProxyHandlerTest {
         testConfig.getDynamicConfig().put("upstream-host", "localhost");
         testConfig.getDynamicConfig().put("upstream-port", 80d);
 
-        patientJSON = IOUtils.toString(FhirProxyHandlerTest.class.getClassLoader().getResourceAsStream("fhir-patient.json"));
-        patientXML = IOUtils.toString(FhirProxyHandlerTest.class.getClassLoader().getResourceAsStream("fhir-patient.xml"));
+        patientJSON = IOUtils.toString(FhirProxyHandlerTest.class.getClassLoader().getResourceAsStream("fhir-bundle.json"));
+        patientXML = IOUtils.toString(FhirProxyHandlerTest.class.getClassLoader().getResourceAsStream("fhir-bundle.xml"));
         patientJSON_invalid = IOUtils.toString(FhirProxyHandlerTest.class.getClassLoader().getResourceAsStream("fhir-patient-invalid.json"));
         patientJSON_invalidSyntax = IOUtils.toString(FhirProxyHandlerTest.class.getClassLoader().getResourceAsStream("fhir-patient-invalid-syntax.json"));
     }
