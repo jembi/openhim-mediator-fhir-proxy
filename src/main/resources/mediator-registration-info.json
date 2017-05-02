@@ -69,9 +69,9 @@
   "config": {
     "upstream-scheme": "http",
     "upstream-host": "localhost",
-    "upstream-port": 80,
+    "upstream-port": 8080,
     "upstream-format": "JSON",
-    "fhir-context": "DSTU2",
+    "fhir-context": "DSTU1",
     "validation-enabled": true
   }
 }
