@@ -11,7 +11,7 @@
         {
           "name": "OpenHIM Mediator FHIR Proxy Route",
           "primary": true,
-          "host": "0.0.0.0",
+          "host": "localhost",
           "port": "8604",
           "type": "http",
           "forwardAuthHeader": false
@@ -24,7 +24,7 @@
   "endpoints": [
     {
       "name": "OpenHIM Mediator FHIR Proxy Route",
-      "host": "0.0.0.0",
+      "host": "localhost",
       "port": "8604",
       "type": "http"
     }
