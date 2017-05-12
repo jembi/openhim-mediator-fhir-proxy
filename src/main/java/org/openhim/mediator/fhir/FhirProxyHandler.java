@@ -21,7 +21,6 @@ import ca.uhn.fhir.validation.ValidationResult;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.HttpStatus;
 import org.hl7.fhir.instance.model.api.IBaseOperationOutcome;
-import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.openhim.mediator.engine.MediatorConfig;
 import org.openhim.mediator.engine.messages.ExceptError;
 import org.openhim.mediator.engine.messages.FinishRequest;
@@ -43,13 +42,13 @@ public class FhirProxyHandler extends UntypedActor {
         String contentType;
         String content;
 
-        public Contents(String contentType, String content) {
+        Contents(String contentType, String content) {
             this.contentType = contentType;
             this.content = content;
         }
     }
 
-    LoggingAdapter log = Logging.getLogger(getContext().system(), this);
+    private LoggingAdapter log = Logging.getLogger(getContext().system(), this);
 
     private final MediatorConfig config;
 
@@ -74,9 +73,9 @@ public class FhirProxyHandler extends UntypedActor {
         FhirValidationResult result = new FhirValidationResult();
         FhirValidator validator = fhirContext.newValidator();
 
-        IParser parser = newParser(contents.contentType);        
-        Bundle bundle = parser.parseBundle(contents.content);        
-        
+        IParser parser = newParser(contents.contentType);
+        Bundle bundle = parser.parseBundle(contents.content);
+
         ValidationResult vr = validator.validateWithResult(bundle);
 
         if (vr.isSuccessful()) {
@@ -96,15 +95,16 @@ public class FhirProxyHandler extends UntypedActor {
         String envHost = System.getenv("UPSTREAM_HOST");
         String envPort = System.getenv("UPSTREAM_PORT");
 
-        String upstreamHost = envHost != null ? envHost : (String)config.getDynamicConfig().get("upstream-host");
-        Integer upstreamPort = envPort != null ? Integer.parseInt(envPort) : ((Double)config.getDynamicConfig().get("upstream-port")).intValue();
+        String upstreamHost = envHost != null ? envHost : (String) config.getDynamicConfig().get("upstream-host");
+        Integer upstreamPort = envPort != null ? Integer.parseInt(envPort) : ((Double) config.getDynamicConfig()
+                .get("upstream-port")).intValue();
 
         MediatorHTTPRequest newRequest = new MediatorHTTPRequest(
                 requestHandler,
                 getSelf(),
                 "FHIR Upstream",
                 request.getMethod(),
-                (String)config.getDynamicConfig().get("upstream-scheme"),
+                (String) config.getDynamicConfig().get("upstream-scheme"),
                 upstreamHost,
                 upstreamPort,
                 request.getPath(),
@@ -113,7 +113,8 @@ public class FhirProxyHandler extends UntypedActor {
                 copyParams(request.getParams())
         );
 
-        log.info("[" + openhimTrxID + "] Forwarding to " + newRequest.getHost() + ":" + newRequest.getPort() + newRequest.getPath());
+        log.info("[" + openhimTrxID + "] Forwarding to " + newRequest.getHost() + ":" + newRequest.getPort()
+                + newRequest.getPath());
 
         ActorSelection httpConnector = getContext().actorSelection(config.userPathFor("http-connector"));
         httpConnector.tell(newRequest, getSelf());
@@ -122,7 +123,8 @@ public class FhirProxyHandler extends UntypedActor {
     private Map<String, String> copyHeaders(Map<String, String> headers) {
         Map<String, String> copy = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         for (String header : headers.keySet()) {
-            if ("Content-Type".equalsIgnoreCase(header) || "Content-Length".equalsIgnoreCase(header) || "Host".equalsIgnoreCase(header)) {
+            if ("Content-Type".equalsIgnoreCase(header) || "Content-Length".equalsIgnoreCase(header)
+                    || "Host".equalsIgnoreCase(header)) {
                 continue;
             }
 
@@ -185,7 +187,8 @@ public class FhirProxyHandler extends UntypedActor {
             String converted = outParser.setPrettyPrint(true).encodeBundleToString(bundle);
             return new Contents(targetContentType, converted);
         } else {
-            requestHandler.tell(new ExceptError(new RuntimeException("Unknown upstream format specified " + upstreamFormat)), getSelf());
+            requestHandler.tell(new ExceptError(new RuntimeException("Unknown upstream format specified "
+                    + upstreamFormat)), getSelf());
             return null;
         }
     }
@@ -195,7 +198,7 @@ public class FhirProxyHandler extends UntypedActor {
         String body = request.getBody();
         Contents contents = new Contents(contentType, body);
 
-        if ((Boolean)config.getDynamicConfig().get("validation-enabled")) {
+        if ((Boolean) config.getDynamicConfig().get("validation-enabled")) {
             FhirValidationResult validationResult = validateFhirRequest(contents);
 
             if (!validationResult.passed) {
@@ -205,7 +208,7 @@ public class FhirProxyHandler extends UntypedActor {
         }
 
         contents = convertBodyForUpstream(contents);
-        if (contents==null) {
+        if (contents == null) {
             return;
         }
 
@@ -226,7 +229,8 @@ public class FhirProxyHandler extends UntypedActor {
 
     private IBaseOperationOutcome throwableToOperationOutcome(Throwable ex) {
         IBaseOperationOutcome outcome = OperationOutcomeUtil.newInstance(fhirContext);
-        OperationOutcomeUtil.addIssue(fhirContext, outcome, "error", ex.getMessage(), null, null);
+        OperationOutcomeUtil.addIssue(fhirContext, outcome, "error", ex.getMessage(), null,
+                null);
         return outcome;
     }
 
@@ -252,7 +256,7 @@ public class FhirProxyHandler extends UntypedActor {
     private String determineClientContentType() {
         // first check for Accept header
         String accept = request.getHeaders().get("Accept");
-        if (accept!=null && !"*/*".equals(accept)) {
+        if (accept != null && !"*/*".equals(accept)) {
             return accept;
         }
 
@@ -265,7 +269,7 @@ public class FhirProxyHandler extends UntypedActor {
 
         // thirdly check for the format the client sent content with
         String contentType = request.getHeaders().get("Content-Type");
-        if (contentType!=null) {
+        if (contentType != null) {
             return contentType.contains("json") ? Constants.FHIR_MIME_JSON : Constants.FHIR_MIME_XML;
         }
 
@@ -278,11 +282,11 @@ public class FhirProxyHandler extends UntypedActor {
         String contentType = response.getHeaders().get("Content-Type");
         String body = response.getBody();
 
-        if (body==null || body.trim().isEmpty()) {
+        if (body == null || body.trim().isEmpty()) {
             return null;
         }
 
-        if (contentType==null || !contentType.contains("json") && !contentType.contains("xml")) {
+        if (contentType == null || !contentType.contains("json") && !contentType.contains("xml")) {
             return null;
         }
 
@@ -311,7 +315,7 @@ public class FhirProxyHandler extends UntypedActor {
         log.info("[" + openhimTrxID + "] Processing upstream response and responding to client");
         Contents contents = getResponseBodyAsContents();
 
-        if ("Client".equalsIgnoreCase(upstreamFormat) || contents==null) {
+        if ("Client".equalsIgnoreCase(upstreamFormat) || contents == null) {
             respondTo.tell(response.toFinishRequest(true), getSelf());
         } else {
             String clientAccept = determineClientContentType();
