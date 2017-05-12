@@ -319,8 +319,9 @@ public class FhirProxyHandler extends UntypedActor {
             respondTo.tell(response.toFinishRequest(true), getSelf());
         } else {
             String clientAccept = determineClientContentType();
+            String upstreamResponse = contents.contentType;
 
-            if (isUpstreamAndClientFormatsEqual(clientAccept)) {
+            if (isUpstreamResponseTypeAndClientAcceptTypeEqual(clientAccept, upstreamResponse)) {
                 respondWithContents(contents);
             } else {
                 respondWithContents(convertResponseContents(clientAccept, contents));
@@ -328,6 +329,10 @@ public class FhirProxyHandler extends UntypedActor {
         }
     }
 
+    private boolean isUpstreamResponseTypeAndClientAcceptTypeEqual(String clientAcceptContentType, String upstreamResponseType) {
+        return (upstreamResponseType.contains("json") && clientAcceptContentType.contains("json")) ||
+                (upstreamResponseType.contains("xml") && clientAcceptContentType.contains("xml"));
+    }
 
     @Override
     public void onReceive(Object msg) throws Exception {
