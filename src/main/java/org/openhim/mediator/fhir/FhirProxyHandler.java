@@ -92,21 +92,14 @@ public class FhirProxyHandler extends UntypedActor {
         String upstreamAccept = determineTargetContentType(determineClientContentType());
         headers.put("Accept", upstreamAccept);
 
-        String envHost = System.getenv("UPSTREAM_HOST");
-        String envPort = System.getenv("UPSTREAM_PORT");
-
-        String upstreamHost = envHost != null ? envHost : (String) config.getDynamicConfig().get("upstream-host");
-        Integer upstreamPort = envPort != null ? Integer.parseInt(envPort) : ((Double) config.getDynamicConfig()
-                .get("upstream-port")).intValue();
-
         MediatorHTTPRequest newRequest = new MediatorHTTPRequest(
                 requestHandler,
                 getSelf(),
                 "FHIR Upstream",
                 request.getMethod(),
-                (String) config.getDynamicConfig().get("upstream-scheme"),
-                upstreamHost,
-                upstreamPort,
+                (String)config.getDynamicConfig().get("upstream-scheme"),
+                (String)config.getDynamicConfig().get("upstream-host"),
+                ((Double)config.getDynamicConfig().get("upstream-port")).intValue(),
                 request.getPath(),
                 body,
                 headers,
