@@ -12,9 +12,11 @@ import akka.event.LoggingAdapter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.openhim.mediator.engine.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Properties;
 
 public class MediatorMain {
@@ -64,6 +66,19 @@ public class MediatorMain {
         InputStream regInfo = MediatorMain.class.getClassLoader().getResourceAsStream("mediator-registration-info.json");
         RegistrationConfig regConfig = new RegistrationConfig(regInfo);
         config.setRegistrationConfig(regConfig);
+
+        // Override registration config from environment
+        for (Map.Entry<String, Object> entry : config.getDynamicConfig().entrySet()) {
+            if (entry.getKey() == null) {
+                continue;
+            }
+
+            String environmentKey = entry.getKey().toUpperCase().replace('-', '_');
+            String environmentValue = System.getenv(environmentKey);
+            if (environmentValue != null) {
+                config.getDynamicConfig().put(entry.getKey(), environmentValue);
+            }
+        }
 
         if (config.getProperty("mediator.heartbeats")!=null && "true".equalsIgnoreCase(config.getProperty("mediator.heartbeats"))) {
             config.setHeartbeatsEnabled(true);
