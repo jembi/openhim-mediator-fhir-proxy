@@ -92,6 +92,16 @@ public class FhirProxyHandler extends UntypedActor {
         String upstreamAccept = determineTargetContentType(determineClientContentType());
         headers.put("Accept", upstreamAccept);
 
+        Integer upstreamPort;
+        Object upstreamPortConfig = config.getDynamicConfig().get("upstream-port");
+        if (upstreamPortConfig instanceof String) {
+        	upstreamPort = Integer.valueOf((String) upstreamPortConfig);
+        } else if (upstreamPortConfig instanceof Number) {
+        	upstreamPort = ((Number) upstreamPortConfig).intValue();
+        } else {
+        	throw new IllegalArgumentException("The upstream-port config must be set to a number");
+        }
+        
         MediatorHTTPRequest newRequest = new MediatorHTTPRequest(
                 requestHandler,
                 getSelf(),
@@ -99,7 +109,7 @@ public class FhirProxyHandler extends UntypedActor {
                 request.getMethod(),
                 (String)config.getDynamicConfig().get("upstream-scheme"),
                 (String)config.getDynamicConfig().get("upstream-host"),
-                ((Double)config.getDynamicConfig().get("upstream-port")).intValue(),
+                upstreamPort,
                 request.getPath(),
                 body,
                 headers,
